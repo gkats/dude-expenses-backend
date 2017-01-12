@@ -7,7 +7,7 @@ import (
 )
 
 func Configure(env *app.Env) {
-	db, err := sql.Open("postgres", "postgres://dude_expenses:dudeExpen$es123@localhost/dude_expenses_development?sslmode=verify-full")
+	db, err := sql.Open("postgres", "postgres://dude_expenses:dudeExpen$es123@localhost:5432/dude_expenses_development?sslmode=require")
 	if err != nil {
 		// TODO Logging here...
 	}
@@ -17,3 +17,5 @@ func Configure(env *app.Env) {
 
 	env.SetDB(db)
 }
+
+// TODO defer db.Close()
