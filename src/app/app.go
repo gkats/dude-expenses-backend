@@ -7,11 +7,11 @@ import (
 
 type Env struct {
 	db     *sql.DB
-	routes *mux.Router
+	router *mux.Router
 }
 
 func New() *Env {
-	return &Env{}
+	return &Env{router: mux.NewRouter()}
 }
 
 func (env *Env) SetDB(db *sql.DB) {
@@ -22,10 +22,6 @@ func (env *Env) GetDB() *sql.DB {
 	return env.db
 }
 
-func (env *Env) SetRoutes(routes *mux.Router) {
-	env.routes = routes
-}
-
-func (env *Env) GetRoutes() *mux.Router {
-	return env.routes
+func (env *Env) GetRouter() *mux.Router {
+	return env.router
 }
