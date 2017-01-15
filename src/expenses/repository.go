@@ -19,9 +19,9 @@ func (repository *Repository) CreateExpense(params ExpenseParams) (Expense, erro
 
 	query := `
 	INSERT INTO expenses (price_cents, date, tag, notes)
-	VALUES($1, $2, $3, $4) RETURNING id
+	VALUES($1, $2, $3, $4) RETURNING id, created_at, updated_at
 	`
-	err := db.QueryRow(query, expense.PriceCents, expense.Date, expense.Tag, expense.Notes).Scan(&expense.Id)
+	err := db.QueryRow(query, expense.PriceCents, expense.Date, expense.Tag, expense.Notes).Scan(&expense.Id, &expense.CreatedAt, &expense.UpdatedAt)
 	if err != nil {
 		return expense, err
 	}
@@ -47,7 +47,7 @@ func (repository *Repository) GetExpenses(params FilterParams) (Expenses, error)
 
 	expense := Expense{}
 	for rows.Next() {
-		rows.Scan(&expense.Id, &expense.PriceCents, &expense.Date, &expense.Tag, &expense.Notes)
+		rows.Scan(&expense.Id, &expense.PriceCents, &expense.Date, &expense.Tag, &expense.Notes, &expense.CreatedAt, &expense.UpdatedAt)
 		expenses.Expenses = append(expenses.Expenses, expense)
 	}
 	return expenses, nil

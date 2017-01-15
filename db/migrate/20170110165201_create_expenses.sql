@@ -3,7 +3,9 @@ CREATE TABLE expenses (
   price_cents INTEGER NOT NULL DEFAULT 0 CHECK (price_cents >= 0),
   date TIMESTAMP WITH TIME ZONE NOT NULL,
   tag VARCHAR(50) NOT NULL,
-  notes TEXT
+  notes TEXT,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX tag_index ON expenses (tag);
+CREATE INDEX expenses_tag_index ON expenses (tag);
