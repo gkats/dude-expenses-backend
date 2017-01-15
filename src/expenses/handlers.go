@@ -23,7 +23,7 @@ func Create(env *app.Env) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var expenseParams ExpenseParams
 
-		w.Header().Add("Content-Type", "application/json")
+		w.Header().Set("Content-Type", "application/json")
 		encoder := json.NewEncoder(w)
 
 		err := parseRequestBody(r, &expenseParams)
@@ -52,6 +52,29 @@ func Create(env *app.Env) http.Handler {
 
 		w.WriteHeader(http.StatusCreated)
 		encoder.Encode(&expense)
+	})
+}
+
+func Index(env *app.Env) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var params FilterParams
+		encoder := json.NewEncoder(w)
+		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Pragma", "no-cache")
+
+		queryParams := r.URL.Query()
+		params.From = queryParams.Get("from")
+		params.To = queryParams.Get("to")
+
+		expenses, err := NewRepository(env.GetDB()).GetExpenses(params)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			encoder.Encode(&JsonError{Message: "Something went wrong"})
+			return
+		}
+
+		w.WriteHeader(http.StatusOK)
+		encoder.Encode(&expenses)
 	})
 }
 

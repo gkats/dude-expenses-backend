@@ -5,11 +5,20 @@ type Expense struct {
 	ExpenseParams
 }
 
+type Expenses struct {
+	Expenses []Expense `json:"expenses"`
+}
+
 type ExpenseParams struct {
 	PriceCents int64 `json:"price_cents,string,omitempty"`
 	Date string `json:"date,omitempty"`
 	Tag string `json:"tag,omitempty"`
 	Notes string `json:"notes,omitempty"`
+}
+
+type FilterParams struct {
+	From string `json:"from",omitempty`
+	To string `json:"to",omitempty`
 }
 
 func NewExpense(params ExpenseParams) Expense {

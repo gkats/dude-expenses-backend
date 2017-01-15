@@ -2,8 +2,8 @@ package expenses
 
 import (
 	"database/sql"
-	"log"
 	_"github.com/lib/pq"
+	"log"
 )
 
 type Repository struct {
@@ -15,21 +15,40 @@ func NewRepository(db *sql.DB) *Repository {
 }
 
 func (repository *Repository) CreateExpense(params ExpenseParams) (Expense, error) {
-	var expense Expense
+	expense := NewExpense(params)
 
-	sql := `
+	query := `
 	INSERT INTO expenses (price_cents, date, tag, notes)
 	VALUES($1, $2, $3, $4) RETURNING id
 	`
-	statement, err := db.Prepare(sql)
-	if err != nil {
-		log.Fatal(err)
-		return expense, err
-	}
-	expense = NewExpense(params)
-	err = statement.QueryRow(expense.PriceCents, expense.Date, expense.Tag, expense.Notes).Scan(&expense.Id)
+	err := db.QueryRow(query, expense.PriceCents, expense.Date, expense.Tag, expense.Notes).Scan(&expense.Id)
 	if err != nil {
 		return expense, err
 	}
 	return expense, nil
+}
+
+func (repository *Repository) GetExpenses(params FilterParams) (Expenses, error) {
+	expenses := Expenses{}
+	query := "SELECT * FROM expenses"
+	var err error
+	var rows *sql.Rows
+
+	if (len(params.From) > 0 && len(params.To) > 0) {
+		rows, err = db.Query(query + " WHERE date >= $1 AND date <= $2", params.From, params.To)
+	} else {
+		rows, err = db.Query(query)
+	}
+	defer rows.Close()
+	if err != nil {
+		log.Fatal(err)
+		return expenses, err
+	}
+
+	expense := Expense{}
+	for rows.Next() {
+		rows.Scan(&expense.Id, &expense.PriceCents, &expense.Date, &expense.Tag, &expense.Notes)
+		expenses.Expenses = append(expenses.Expenses, expense)
+	}
+	return expenses, nil
 }
