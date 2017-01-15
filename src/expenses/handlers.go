@@ -3,7 +3,6 @@ package expenses
 import (
 	"app"
 	"app/handler"
-	"encoding/json"
 	"net/http"
 )
 
@@ -12,7 +11,7 @@ func Create(env *app.Env) handler.AppHandlerFunc {
 		var apiResponse handler.HandlerResponse
 		var expenseParams ExpenseParams
 
-		err := parseRequestBody(r, &expenseParams)
+		err := handler.ParseRequestBody(r, &expenseParams)
 		defer r.Body.Close()
 		if err != nil {
 			// TODO Log err??
@@ -53,8 +52,4 @@ func Index(env *app.Env) handler.AppHandlerFunc {
 
 		return handler.NewHandlerResponse(http.StatusOK, expenses), nil
 	}
-}
-
-func parseRequestBody(r *http.Request, params *ExpenseParams) error {
-	return json.NewDecoder(r.Body).Decode(&params)
 }

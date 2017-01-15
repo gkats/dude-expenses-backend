@@ -48,3 +48,7 @@ type HandlerResponse struct {
 func NewHandlerResponse(status int, body interface{}) HandlerResponse {
 	return HandlerResponse{Status: status, Body: body}
 }
+
+func ParseRequestBody(r *http.Request, params interface{}) error {
+	return json.NewDecoder(r.Body).Decode(params)
+}
