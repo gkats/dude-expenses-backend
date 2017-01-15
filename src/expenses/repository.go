@@ -14,30 +14,30 @@ func NewRepository(db *sql.DB) *Repository {
 	return &Repository{db: db}
 }
 
-func (repository *Repository) CreateExpense(params ExpenseParams) (Expense, error) {
+func (this *Repository) CreateExpense(params ExpenseParams) (Expense, error) {
 	expense := NewExpense(params)
 
 	query := `
 	INSERT INTO expenses (price_cents, date, tag, notes)
 	VALUES($1, $2, $3, $4) RETURNING id, created_at, updated_at
 	`
-	err := db.QueryRow(query, expense.PriceCents, expense.Date, expense.Tag, expense.Notes).Scan(&expense.Id, &expense.CreatedAt, &expense.UpdatedAt)
+	err := this.db.QueryRow(query, expense.PriceCents, expense.Date, expense.Tag, expense.Notes).Scan(&expense.Id, &expense.CreatedAt, &expense.UpdatedAt)
 	if err != nil {
 		return expense, err
 	}
 	return expense, nil
 }
 
-func (repository *Repository) GetExpenses(params FilterParams) (Expenses, error) {
+func (this *Repository) GetExpenses(params FilterParams) (Expenses, error) {
 	expenses := Expenses{}
 	query := "SELECT * FROM expenses"
 	var err error
 	var rows *sql.Rows
 
 	if len(params.From) > 0 && len(params.To) > 0 {
-		rows, err = db.Query(query+" WHERE date >= $1 AND date <= $2", params.From, params.To)
+		rows, err = this.db.Query(query+" WHERE date >= $1 AND date <= $2", params.From, params.To)
 	} else {
-		rows, err = db.Query(query)
+		rows, err = this.db.Query(query)
 	}
 	defer rows.Close()
 	if err != nil {
