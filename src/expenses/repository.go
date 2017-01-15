@@ -2,7 +2,7 @@ package expenses
 
 import (
 	"database/sql"
-	_"github.com/lib/pq"
+	_ "github.com/lib/pq"
 	"log"
 )
 
@@ -34,8 +34,8 @@ func (repository *Repository) GetExpenses(params FilterParams) (Expenses, error)
 	var err error
 	var rows *sql.Rows
 
-	if (len(params.From) > 0 && len(params.To) > 0) {
-		rows, err = db.Query(query + " WHERE date >= $1 AND date <= $2", params.From, params.To)
+	if len(params.From) > 0 && len(params.To) > 0 {
+		rows, err = db.Query(query+" WHERE date >= $1 AND date <= $2", params.From, params.To)
 	} else {
 		rows, err = db.Query(query)
 	}

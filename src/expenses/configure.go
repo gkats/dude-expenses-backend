@@ -1,8 +1,8 @@
 package expenses
 
 import (
-	"database/sql"
 	"app"
+	"database/sql"
 )
 
 var db *sql.DB

@@ -6,7 +6,7 @@ import (
 )
 
 type Env struct {
-	db *sql.DB
+	db     *sql.DB
 	routes *mux.Router
 }
 

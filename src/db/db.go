@@ -1,9 +1,9 @@
 package db
 
 import (
-	"database/sql"
 	"app"
-	_"github.com/lib/pq"
+	"database/sql"
+	_ "github.com/lib/pq"
 )
 
 func Configure(env *app.Env) {

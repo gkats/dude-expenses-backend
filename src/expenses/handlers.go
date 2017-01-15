@@ -1,9 +1,9 @@
 package expenses
 
 import (
+	"app"
 	"encoding/json"
 	"net/http"
-	"app"
 )
 
 type JsonError struct {
@@ -11,12 +11,12 @@ type JsonError struct {
 }
 
 type unprocessableEntityResponse struct {
-	Message string `json:"message"`
-	Errors map[string][]string `json:"errors"`
+	Message string              `json:"message"`
+	Errors  map[string][]string `json:"errors"`
 }
 
-func NewUnprocessableEntityResponse(errors map[string][]string) (unprocessableEntityResponse) {
-	return unprocessableEntityResponse{Message: "Resource invalid", Errors: errors }
+func NewUnprocessableEntityResponse(errors map[string][]string) unprocessableEntityResponse {
+	return unprocessableEntityResponse{Message: "Resource invalid", Errors: errors}
 }
 
 func Create(env *app.Env) http.Handler {
