@@ -2,64 +2,43 @@ package expenses
 
 import (
 	"app"
+	"app/handler"
 	"encoding/json"
 	"net/http"
 )
 
-type JsonError struct {
-	Message string `json:"message"`
-}
-
-type unprocessableEntityResponse struct {
-	Message string              `json:"message"`
-	Errors  map[string][]string `json:"errors"`
-}
-
-func NewUnprocessableEntityResponse(errors map[string][]string) unprocessableEntityResponse {
-	return unprocessableEntityResponse{Message: "Resource invalid", Errors: errors}
-}
-
-func Create(env *app.Env) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+func Create(env *app.Env) handler.AppHandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) (handler.HandlerResponse, handler.Error) {
+		var apiResponse handler.HandlerResponse
 		var expenseParams ExpenseParams
-
-		w.Header().Set("Content-Type", "application/json")
-		encoder := json.NewEncoder(w)
 
 		err := parseRequestBody(r, &expenseParams)
 		defer r.Body.Close()
 		if err != nil {
-			w.WriteHeader(http.StatusBadRequest)
-			encoder.Encode(&JsonError{Message: "Bad request"})
-			return
+			// TODO Log err??
+			return apiResponse, handler.BadRequest()
 		}
 
 		expenseValidation := NewExpenseValidation(expenseParams)
 		if !expenseValidation.IsValid() {
-			w.WriteHeader(http.StatusUnprocessableEntity)
-			response := NewUnprocessableEntityResponse(expenseValidation.Errors)
-			encoder.Encode(&response)
-			return
+			return apiResponse, handler.UnprocessableEntity(expenseValidation.Errors)
 		}
 
 		repository := NewRepository(env.GetDB())
 		expense, err := repository.CreateExpense(expenseParams)
 		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			encoder.Encode(&JsonError{Message: "Something went wrong"})
-			return
+			// TODO Log error!!
+			return apiResponse, handler.InternalServerError()
 		}
 
-		w.WriteHeader(http.StatusCreated)
-		encoder.Encode(&expense)
-	})
+		return handler.NewHandlerResponse(http.StatusCreated, expense), nil
+	}
 }
 
-func Index(env *app.Env) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+func Index(env *app.Env) handler.AppHandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) (handler.HandlerResponse, handler.Error) {
+		var apiResponse handler.HandlerResponse
 		var params FilterParams
-		encoder := json.NewEncoder(w)
-		w.Header().Set("Content-Type", "application/json")
 		w.Header().Set("Pragma", "no-cache")
 
 		queryParams := r.URL.Query()
@@ -68,14 +47,12 @@ func Index(env *app.Env) http.Handler {
 
 		expenses, err := NewRepository(env.GetDB()).GetExpenses(params)
 		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			encoder.Encode(&JsonError{Message: "Something went wrong"})
-			return
+			// TODO Log error!
+			return apiResponse, handler.InternalServerError()
 		}
 
-		w.WriteHeader(http.StatusOK)
-		encoder.Encode(&expenses)
-	})
+		return handler.NewHandlerResponse(http.StatusOK, expenses), nil
+	}
 }
 
 func parseRequestBody(r *http.Request, params *ExpenseParams) error {
