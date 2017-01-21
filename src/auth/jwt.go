@@ -1,8 +1,8 @@
 package auth
 
 import (
-	jwt "github.com/dgrijalva/jwt-go"
 	"errors"
+	jwt "github.com/dgrijalva/jwt-go"
 )
 
 // TODO add this to a secrets file. Get it from env in production
