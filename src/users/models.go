@@ -1,7 +1,7 @@
 package users
 
 import (
-	"golang.org/x/crypto/bcrypt"
+	"passwords"
 )
 
 type User struct {
@@ -23,7 +23,7 @@ func NewUser(params UserParams) (User, error) {
 }
 
 func (user *User) encryptPassword(password string) error {
-	encryptedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	encryptedPassword, err := passwords.GenerateEncrypted(password)
 	if err == nil {
 		user.EncryptedPassword = string(encryptedPassword)
 	}

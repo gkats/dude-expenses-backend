@@ -3,7 +3,7 @@ package users
 import (
 	"app"
 	"auth"
-	"golang.org/x/crypto/bcrypt"
+	"passwords"
 	"strconv"
 )
 
@@ -23,7 +23,7 @@ func (service *AuthService) Authenticate(params UserParams) (*auth.Token, error)
 		return token, err
 	}
 
-	if err = checkPassword(user.EncryptedPassword, params.Password); err != nil {
+	if err = passwords.CheckPassword(user.EncryptedPassword, params.Password); err != nil {
 		return token, &AuthInvalidPasswordError{}
 	}
 
@@ -44,8 +44,4 @@ func (service *AuthService) findUser(email string) (*User, error) {
 		return user, &AuthInvalidEmailError{}
 	}
 	return user, nil
-}
-
-func checkPassword(encryptedPassword string, password string) error {
-	return bcrypt.CompareHashAndPassword([]byte(encryptedPassword), []byte(password))
 }
