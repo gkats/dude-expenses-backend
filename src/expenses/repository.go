@@ -33,7 +33,7 @@ func (repository *Repository) CreateExpense(params ExpenseParams) (Expense, erro
 }
 
 func (repository *Repository) GetExpenses(params FilterParams) (Expenses, error) {
-	expenses := Expenses{}
+	expenses := Expenses{Expenses: make([]Expense, 0)}
 	query := "SELECT * FROM expenses"
 	var err error
 	var rows *sql.Rows
