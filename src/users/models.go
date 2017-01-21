@@ -12,14 +12,6 @@ type User struct {
 	EncryptedPassword string `json:"-"`
 }
 
-func (user *User) encryptPassword(password string) error {
-	encrypted_password, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	if err == nil {
-		user.EncryptedPassword = string(encrypted_password)
-	}
-	return err
-}
-
 func NewUser(params UserParams) (User, error) {
 	user := User{Email: params.Email}
 	err := user.encryptPassword(params.Password)
@@ -28,6 +20,14 @@ func NewUser(params UserParams) (User, error) {
 	}
 
 	return user, nil
+}
+
+func (user *User) encryptPassword(password string) error {
+	encryptedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err == nil {
+		user.EncryptedPassword = string(encryptedPassword)
+	}
+	return err
 }
 
 type UserParams struct {
