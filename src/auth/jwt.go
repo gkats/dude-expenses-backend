@@ -17,28 +17,28 @@ func (e JwtError) Error() string {
 	return e.Err.Error()
 }
 
-type TokenService struct {
+type tokenService struct {
 	claims AuthClaims
 }
 
-func NewTokenService() *TokenService {
-	return &TokenService{}
+func newTokenService() *tokenService {
+	return &tokenService{}
 }
 
-func (t *TokenService) GetClaims() AuthClaims {
+func (t *tokenService) GetClaims() AuthClaims {
 	return t.claims
 }
 
-func (t *TokenService) SetClaims(claims *AuthClaims) {
+func (t *tokenService) SetClaims(claims *AuthClaims) {
 	t.claims = *claims
 }
 
-func (t *TokenService) CreateToken() (string, error) {
+func (t *tokenService) CreateToken() (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, t.claims)
 	return token.SignedString([]byte(authSecret))
 }
 
-func (t *TokenService) ParseToken(tokenString string) error {
+func (t *tokenService) ParseToken(tokenString string) error {
 	token, err := jwt.ParseWithClaims(tokenString, &AuthClaims{}, parser)
 	if err != nil {
 		return err

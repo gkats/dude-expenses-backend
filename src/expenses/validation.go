@@ -24,5 +24,9 @@ func (validation *ExpenseValidation) IsValid() bool {
 		validation.Errors["tag"] = append(validation.Errors["tag"], "can't be blank")
 	}
 
+	if validation.UserId == 0 {
+		validation.Errors["user_id"] = append(validation.Errors["user_id"], "can't be blank")
+	}
+
 	return len(validation.Errors) == 0
 }

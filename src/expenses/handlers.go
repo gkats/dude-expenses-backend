@@ -4,8 +4,8 @@ import (
 	"app"
 	"app/handler"
 	"auth"
-	"fmt"
 	"net/http"
+	"strconv"
 )
 
 func Create(env *app.Env) handler.AppHandlerFunc {
@@ -21,6 +21,10 @@ func Create(env *app.Env) handler.AppHandlerFunc {
 		defer r.Body.Close()
 		if err != nil {
 			// TODO Log err??
+			return apiResponse, handler.BadRequest()
+		}
+		expenseParams.UserId, err = strconv.ParseInt(env.GetUserId(), 10, 64)
+		if err != nil {
 			return apiResponse, handler.BadRequest()
 		}
 
@@ -52,9 +56,9 @@ func Index(env *app.Env) handler.AppHandlerFunc {
 		w.Header().Set("Pragma", "no-cache")
 
 		queryParams := r.URL.Query()
-		fmt.Println("UserId: " + env.GetUserId())
 		params.From = queryParams.Get("from")
 		params.To = queryParams.Get("to")
+		params.UserId = env.GetUserId()
 
 		expenses, err := NewRepository(env.GetDB()).GetExpenses(params)
 		if err != nil {

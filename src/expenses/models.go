@@ -20,8 +20,9 @@ type ExpenseParams struct {
 }
 
 type FilterParams struct {
-	From string `json:"from,omitempty"`
-	To   string `json:"to,omitempty"`
+	From   string `json:"from,omitempty"`
+	To     string `json:"to,omitempty"`
+	UserId string `json:"user_id,omitempty"`
 }
 
 func NewExpense(params ExpenseParams) Expense {

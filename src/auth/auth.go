@@ -2,13 +2,12 @@ package auth
 
 import (
 	"app"
-	"errors"
 	"net/http"
 	"regexp"
 )
 
 func GenerateToken(id string) (*Token, error) {
-	tokenService := NewTokenService()
+	tokenService := newTokenService()
 	tokenService.SetClaims(&AuthClaims{UserId: id})
 	tokenString, err := tokenService.CreateToken()
 	if err != nil {
@@ -18,7 +17,7 @@ func GenerateToken(id string) (*Token, error) {
 }
 
 func ParseTokenUserId(token string) (string, error) {
-	tokenService := NewTokenService()
+	tokenService := newTokenService()
 	if err := tokenService.ParseToken(token); err != nil {
 		return "", err
 	}
@@ -31,15 +30,21 @@ func Authenticate(env *app.Env, r *http.Request) error {
 	regex, _ := regexp.Compile("^Bearer (.+)")
 	matches := regex.FindStringSubmatch(authorization)
 	if len(matches) < 1 {
-		return errors.New("ERROR")
+		return &AuthError{msg: "Invalid Authorization header"}
 	}
 
-	// TODO provide a public method in auth...
-	// also hide tokenService from the outside world
 	userId, err := ParseTokenUserId(matches[1])
 	if err != nil {
-		return errors.New("ERROR")
+		return &AuthError{msg: "Invalid authorization token"}
 	}
 	env.SetUserId(userId)
 	return nil
+}
+
+type AuthError struct {
+	msg string
+}
+
+func (e *AuthError) Error() string {
+	return e.msg
 }

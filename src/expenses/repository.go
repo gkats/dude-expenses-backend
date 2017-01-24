@@ -3,7 +3,6 @@ package expenses
 import (
 	"database/sql"
 	_ "github.com/lib/pq"
-	"log"
 )
 
 type Repository struct {
@@ -34,18 +33,15 @@ func (repository *Repository) CreateExpense(params ExpenseParams) (Expense, erro
 
 func (repository *Repository) GetExpenses(params FilterParams) (Expenses, error) {
 	expenses := Expenses{Expenses: make([]Expense, 0)}
-	query := "SELECT * FROM expenses"
 	var err error
 	var rows *sql.Rows
 
-	if len(params.From) > 0 && len(params.To) > 0 {
-		rows, err = repository.db.Query(query+" WHERE date >= $1 AND date <= $2", params.From, params.To)
-	} else {
-		rows, err = repository.db.Query(query)
-	}
+	qb := newQueryBuilder("SELECT * FROM expenses", params)
+	query, args := qb.Build()
+	rows, err = repository.db.Query(query, args...)
 	defer rows.Close()
 	if err != nil {
-		log.Fatal(err)
+		// TODO Log error!
 		return expenses, err
 	}
 
