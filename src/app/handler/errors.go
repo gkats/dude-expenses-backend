@@ -51,6 +51,10 @@ func NotFound() HandlerError {
 	return newHandlerError(http.StatusNotFound, errors.New("Not found"))
 }
 
+func Unauthorized() HandlerError {
+	return newHandlerError(http.StatusUnauthorized, errors.New("Unauthorized"))
+}
+
 func InternalServerError() HandlerError {
 	return newHandlerError(http.StatusInternalServerError, errors.New("Something went wrong"))
 }

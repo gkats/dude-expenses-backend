@@ -8,6 +8,7 @@ import (
 type Env struct {
 	db     *sql.DB
 	router *mux.Router
+	userId string
 }
 
 func New() *Env {
@@ -24,4 +25,12 @@ func (env *Env) GetDB() *sql.DB {
 
 func (env *Env) GetRouter() *mux.Router {
 	return env.router
+}
+
+func (env *Env) SetUserId(userId string) {
+	env.userId = userId
+}
+
+func (env *Env) GetUserId() string {
+	return env.userId
 }

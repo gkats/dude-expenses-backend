@@ -3,6 +3,8 @@ package expenses
 import (
 	"app"
 	"app/handler"
+	"auth"
+	"fmt"
 	"net/http"
 )
 
@@ -10,6 +12,10 @@ func Create(env *app.Env) handler.AppHandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) (handler.HandlerResponse, handler.Error) {
 		var apiResponse handler.HandlerResponse
 		var expenseParams ExpenseParams
+
+		if err := auth.Authenticate(env, r); err != nil {
+			return apiResponse, handler.Unauthorized()
+		}
 
 		err := handler.ParseRequestBody(r, &expenseParams)
 		defer r.Body.Close()
@@ -38,9 +44,15 @@ func Index(env *app.Env) handler.AppHandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) (handler.HandlerResponse, handler.Error) {
 		var apiResponse handler.HandlerResponse
 		var params FilterParams
+
+		if err := auth.Authenticate(env, r); err != nil {
+			return apiResponse, handler.Unauthorized()
+		}
+
 		w.Header().Set("Pragma", "no-cache")
 
 		queryParams := r.URL.Query()
+		fmt.Println("UserId: " + env.GetUserId())
 		params.From = queryParams.Get("from")
 		params.To = queryParams.Get("to")
 
