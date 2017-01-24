@@ -36,7 +36,10 @@ func (repository *Repository) GetExpenses(params FilterParams) (Expenses, error)
 	var err error
 	var rows *sql.Rows
 
-	qb := newQueryBuilder("SELECT * FROM expenses", params)
+	qb := newQueryBuilder(
+		"SELECT id, user_id, price_cents, date, tag, notes, created_at, updated_at FROM expenses",
+		params,
+	)
 	query, args := qb.Build()
 	rows, err = repository.db.Query(query, args...)
 	defer rows.Close()
