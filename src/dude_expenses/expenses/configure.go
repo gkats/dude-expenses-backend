@@ -1,8 +1,8 @@
 package expenses
 
 import (
-	"app"
-	"app/handler"
+	"dude_expenses/app"
+	"dude_expenses/app/handler"
 )
 
 func Configure(env *app.Env) {

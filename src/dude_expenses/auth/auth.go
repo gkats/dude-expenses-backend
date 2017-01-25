@@ -1,7 +1,7 @@
 package auth
 
 import (
-	"app"
+	"dude_expenses/app"
 	"net/http"
 	"regexp"
 )

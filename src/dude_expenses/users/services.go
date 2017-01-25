@@ -1,9 +1,9 @@
 package users
 
 import (
-	"app"
-	"auth"
-	"passwords"
+	"dude_expenses/app"
+	"dude_expenses/auth"
+	"dude_expenses/passwords"
 	"strconv"
 )
 

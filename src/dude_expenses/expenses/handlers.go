@@ -1,9 +1,9 @@
 package expenses
 
 import (
-	"app"
-	"app/handler"
-	"auth"
+	"dude_expenses/app"
+	"dude_expenses/app/handler"
+	"dude_expenses/auth"
 	"net/http"
 	"strconv"
 )

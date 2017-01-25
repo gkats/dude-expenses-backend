@@ -1,8 +1,8 @@
 package db
 
 import (
-	"app"
 	"database/sql"
+	"dude_expenses/app"
 	_ "github.com/lib/pq"
 )
 

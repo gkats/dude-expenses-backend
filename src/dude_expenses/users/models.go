@@ -1,7 +1,7 @@
 package users
 
 import (
-	"passwords"
+	"dude_expenses/passwords"
 )
 
 type User struct {

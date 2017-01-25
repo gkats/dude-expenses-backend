@@ -1,11 +1,11 @@
 package main
 
 import (
-	"app"
-	"db"
-	"expenses"
+	"dude_expenses/app"
+	"dude_expenses/db"
+	"dude_expenses/expenses"
+	"dude_expenses/users"
 	"net/http"
-	"users"
 )
 
 func main() {

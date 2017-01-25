@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"app"
+	"dude_expenses/app"
 	"encoding/json"
 	"net/http"
 )

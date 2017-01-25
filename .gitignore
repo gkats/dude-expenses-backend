@@ -22,3 +22,8 @@ _testmain.go
 *.exe
 *.test
 *.prof
+
+pkg/*
+bin/*
+!pkg/.gitkeep
+!bin/.gitkeep
