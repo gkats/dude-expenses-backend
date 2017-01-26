@@ -2,7 +2,6 @@ package expenses
 
 import (
 	"dude_expenses/app"
-	"dude_expenses/auth"
 	"net/http"
 	"strconv"
 )
@@ -13,11 +12,6 @@ type indexHandler struct {
 
 func (h indexHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) app.Response {
 	var params FilterParams
-
-	if err := auth.Authenticate(h.env, r); err != nil {
-		return app.Unauthorized()
-	}
-
 	w.Header().Set("Pragma", "no-cache")
 
 	queryParams := r.URL.Query()
@@ -44,10 +38,6 @@ type createHandler struct {
 
 func (h createHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) app.Response {
 	var expenseParams ExpenseParams
-
-	if err := auth.Authenticate(h.env, r); err != nil {
-		return app.Unauthorized()
-	}
 
 	err := app.ParseRequestBody(r, &expenseParams)
 	defer r.Body.Close()
