@@ -2,70 +2,78 @@ package expenses
 
 import (
 	"dude_expenses/app"
-	"dude_expenses/app/handler"
 	"dude_expenses/auth"
 	"net/http"
 	"strconv"
 )
 
-func Create(env *app.Env) handler.AppHandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) (handler.HandlerResponse, handler.Error) {
-		var apiResponse handler.HandlerResponse
-		var expenseParams ExpenseParams
-
-		if err := auth.Authenticate(env, r); err != nil {
-			return apiResponse, handler.Unauthorized()
-		}
-
-		err := handler.ParseRequestBody(r, &expenseParams)
-		defer r.Body.Close()
-		if err != nil {
-			// TODO Log err??
-			return apiResponse, handler.BadRequest()
-		}
-		expenseParams.UserId, err = strconv.ParseInt(env.GetUserId(), 10, 64)
-		if err != nil {
-			return apiResponse, handler.BadRequest()
-		}
-
-		expenseValidation := NewExpenseValidation(expenseParams)
-		if !expenseValidation.IsValid() {
-			return apiResponse, handler.UnprocessableEntity(expenseValidation.Errors)
-		}
-
-		repository := NewRepository(env.GetDB())
-		expense, err := repository.CreateExpense(expenseParams)
-		if err != nil {
-			// TODO Log error!!
-			return apiResponse, handler.InternalServerError()
-		}
-
-		return handler.NewHandlerResponse(http.StatusCreated, expense), nil
-	}
+type indexHandler struct {
+	env *app.Env
 }
 
-func Index(env *app.Env) handler.AppHandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) (handler.HandlerResponse, handler.Error) {
-		var apiResponse handler.HandlerResponse
-		var params FilterParams
+func (h indexHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) app.Response {
+	var params FilterParams
 
-		if err := auth.Authenticate(env, r); err != nil {
-			return apiResponse, handler.Unauthorized()
-		}
-
-		w.Header().Set("Pragma", "no-cache")
-
-		queryParams := r.URL.Query()
-		params.From = queryParams.Get("from")
-		params.To = queryParams.Get("to")
-		params.UserId = env.GetUserId()
-
-		expenses, err := NewRepository(env.GetDB()).GetExpenses(params)
-		if err != nil {
-			// TODO Log error!
-			return apiResponse, handler.InternalServerError()
-		}
-
-		return handler.NewHandlerResponse(http.StatusOK, expenses), nil
+	if err := auth.Authenticate(h.env, r); err != nil {
+		return app.Unauthorized()
 	}
+
+	w.Header().Set("Pragma", "no-cache")
+
+	queryParams := r.URL.Query()
+	params.From = queryParams.Get("from")
+	params.To = queryParams.Get("to")
+	params.UserId = h.env.GetUserId()
+
+	expenses, err := NewRepository(h.env.GetDB()).GetExpenses(params)
+	if err != nil {
+		// TODO Log error!
+		return app.InternalServerError()
+	}
+
+	return app.OK(expenses)
+}
+
+func Index(env *app.Env) app.Handler {
+	return indexHandler{env: env}
+}
+
+type createHandler struct {
+	env *app.Env
+}
+
+func (h createHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) app.Response {
+	var expenseParams ExpenseParams
+
+	if err := auth.Authenticate(h.env, r); err != nil {
+		return app.Unauthorized()
+	}
+
+	err := app.ParseRequestBody(r, &expenseParams)
+	defer r.Body.Close()
+	if err != nil {
+		return app.BadRequest()
+	}
+	expenseParams.UserId, err = strconv.ParseInt(h.env.GetUserId(), 10, 64)
+	if err != nil {
+		return app.BadRequest()
+	}
+
+	expenseValidation := NewExpenseValidation(expenseParams)
+	if !expenseValidation.IsValid() {
+		return app.UnprocessableEntity(expenseValidation.Errors)
+	}
+
+	repository := NewRepository(h.env.GetDB())
+	expense, err := repository.CreateExpense(expenseParams)
+	if err != nil {
+		// TODO Log error!!
+		return app.InternalServerError()
+	}
+
+	return app.Created(expense)
+}
+
+func Create(env *app.Env) app.Handler {
+	return createHandler{env: env}
 }

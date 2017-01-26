@@ -2,66 +2,72 @@ package users
 
 import (
 	"dude_expenses/app"
-	"dude_expenses/app/handler"
 	"net/http"
 )
 
-func Create(env *app.Env) handler.AppHandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) (handler.HandlerResponse, handler.Error) {
-		var userParams UserParams
-		var response handler.HandlerResponse
-
-		err := handler.ParseRequestBody(r, &userParams)
-		defer r.Body.Close()
-		if err != nil {
-			// TODO Log error??
-			return response, handler.BadRequest()
-		}
-
-		repository := NewRepository(env.GetDB())
-		userValidation := NewUserValidation(userParams, repository)
-		if !userValidation.IsValid() {
-			return response, handler.UnprocessableEntity(userValidation.Errors)
-		}
-
-		user, err := repository.CreateUser(userParams)
-		if err != nil {
-			// TODO Log error
-			return response, handler.InternalServerError()
-		}
-
-		response = handler.NewHandlerResponse(http.StatusCreated, user)
-		return response, nil
-	}
+type createHandler struct {
+	env *app.Env
 }
 
-func Authenticate(env *app.Env) handler.AppHandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) (handler.HandlerResponse, handler.Error) {
-		var userParams UserParams
-		var response handler.HandlerResponse
+func (h createHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) app.Response {
+	var userParams UserParams
 
-		err := handler.ParseRequestBody(r, &userParams)
-		defer r.Body.Close()
-		if err != nil {
-			return response, handler.BadRequest()
-		}
-
-		authService := NewAuthService(env)
-		token, err := authService.Authenticate(userParams)
-		if err != nil {
-			if _, ok := err.(*AuthInvalidEmailError); ok {
-				return response, handler.NotFound()
-			}
-			if _, ok := err.(*AuthInvalidPasswordError); ok {
-				errors := make(map[string][]string)
-				errors["password"] = append(errors["password"], "is invalid")
-				return response, handler.UnprocessableEntity(errors)
-			}
-			// TODO Log error
-			return response, handler.InternalServerError()
-		}
-
-		response = handler.NewHandlerResponse(http.StatusOK, token)
-		return response, nil
+	err := app.ParseRequestBody(r, &userParams)
+	defer r.Body.Close()
+	if err != nil {
+		return app.BadRequest()
 	}
+
+	repository := NewRepository(h.env.GetDB())
+	userValidation := NewUserValidation(userParams, repository)
+	if !userValidation.IsValid() {
+		return app.UnprocessableEntity(userValidation.Errors)
+	}
+
+	user, err := repository.CreateUser(userParams)
+	if err != nil {
+		// TODO Log error
+		return app.InternalServerError()
+	}
+
+	return app.Created(user)
+}
+
+func Create(env *app.Env) app.Handler {
+	return createHandler{env: env}
+}
+
+type authenticateHandler struct {
+	env *app.Env
+}
+
+func (h authenticateHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) app.Response {
+	var userParams UserParams
+
+	err := app.ParseRequestBody(r, &userParams)
+	defer r.Body.Close()
+	if err != nil {
+		return app.BadRequest()
+	}
+
+	authService := NewAuthService(h.env)
+	token, err := authService.Authenticate(userParams)
+	if err != nil {
+		if _, ok := err.(*AuthInvalidEmailError); ok {
+			return app.NotFound()
+		}
+		if _, ok := err.(*AuthInvalidPasswordError); ok {
+			errors := make(map[string][]string)
+			errors["password"] = append(errors["password"], "is invalid")
+			return app.UnprocessableEntity(errors)
+		}
+		// TODO Log error
+		return app.InternalServerError()
+	}
+
+	return app.OK(token)
+}
+
+func Authenticate(env *app.Env) app.Handler {
+	return authenticateHandler{env: env}
 }

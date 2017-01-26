@@ -18,4 +18,4 @@ func Configure(env *app.Env) {
 	env.SetDB(db)
 }
 
-// TODO defer db.Close()
+// TODO defer db.Close() in main... expose a Close() function for main to defer
