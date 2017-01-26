@@ -21,7 +21,6 @@ func (h indexHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) app.Resp
 
 	expenses, err := NewRepository(h.env.GetDB()).GetExpenses(params)
 	if err != nil {
-		// TODO Log error!
 		return app.InternalServerError()
 	}
 
@@ -57,7 +56,6 @@ func (h createHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) app.Res
 	repository := NewRepository(h.env.GetDB())
 	expense, err := repository.CreateExpense(expenseParams)
 	if err != nil {
-		// TODO Log error!!
 		return app.InternalServerError()
 	}
 

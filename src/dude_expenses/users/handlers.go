@@ -26,7 +26,6 @@ func (h createHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) app.Res
 
 	user, err := repository.CreateUser(userParams)
 	if err != nil {
-		// TODO Log error
 		return app.InternalServerError()
 	}
 
@@ -61,7 +60,6 @@ func (h authenticateHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) a
 			errors["password"] = append(errors["password"], "is invalid")
 			return app.UnprocessableEntity(errors)
 		}
-		// TODO Log error
 		return app.InternalServerError()
 	}
 

@@ -44,7 +44,6 @@ func (repository *Repository) GetExpenses(params FilterParams) (Expenses, error)
 	rows, err = repository.db.Query(query, args...)
 	defer rows.Close()
 	if err != nil {
-		// TODO Log error!
 		return expenses, err
 	}
 
