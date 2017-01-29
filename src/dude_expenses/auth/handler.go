@@ -19,7 +19,7 @@ func (h authHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) app.Respo
 		return app.Unauthorized()
 	}
 
-	userId, err := parseTokenUserId(matches[1])
+	userId, err := parseTokenUserId(matches[1], h.env.GetAuthSecret())
 	if err != nil {
 		return app.Unauthorized()
 	}
@@ -31,8 +31,8 @@ func WithAuth(env *app.Env, next app.Handler) app.Handler {
 	return authHandler{env: env, next: next}
 }
 
-func parseTokenUserId(token string) (string, error) {
-	tokenService := newTokenService()
+func parseTokenUserId(token string, secret string) (string, error) {
+	tokenService := newTokenService(secret)
 	if err := tokenService.ParseToken(token); err != nil {
 		return "", err
 	}

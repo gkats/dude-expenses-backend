@@ -8,14 +8,21 @@ import (
 )
 
 type Env struct {
-	db        *sql.DB
-	router    *mux.Router
-	userId    string
-	logStream io.Writer
+	db         *sql.DB
+	router     *mux.Router
+	userId     string
+	logStream  io.Writer
+	authSecret string
+	dbUrl      string
 }
 
-func New() *Env {
-	return &Env{router: mux.NewRouter(), logStream: os.Stdout}
+func New(authSecret string, dbUrl string) *Env {
+	return &Env{
+		router:     mux.NewRouter(),
+		logStream:  os.Stdout,
+		authSecret: authSecret,
+		dbUrl:      dbUrl,
+	}
 }
 
 func (env *Env) SetDB(db *sql.DB) {
@@ -24,6 +31,10 @@ func (env *Env) SetDB(db *sql.DB) {
 
 func (env *Env) GetDB() *sql.DB {
 	return env.db
+}
+
+func (env *Env) GetDBUrl() string {
+	return env.dbUrl
 }
 
 func (env *Env) GetRouter() *mux.Router {
@@ -40,4 +51,8 @@ func (env *Env) GetUserId() string {
 
 func (env *Env) GetLogStream() io.Writer {
 	return env.logStream
+}
+
+func (env *Env) GetAuthSecret() string {
+	return env.authSecret
 }

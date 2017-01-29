@@ -27,7 +27,7 @@ func (service *AuthService) Authenticate(params UserParams) (*auth.Token, error)
 		return token, &AuthInvalidPasswordError{}
 	}
 
-	token, err = auth.GenerateToken(strconv.FormatInt(user.Id, 10))
+	token, err = auth.GenerateToken(strconv.FormatInt(user.Id, 10), service.env.GetAuthSecret())
 	if err != nil {
 		return token, err
 	}

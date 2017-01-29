@@ -1,7 +1,7 @@
 package auth
 
-func GenerateToken(id string) (*Token, error) {
-	tokenService := newTokenService()
+func GenerateToken(id string, secret string) (*Token, error) {
+	tokenService := newTokenService(secret)
 	tokenService.SetClaims(&AuthClaims{UserId: id})
 	tokenString, err := tokenService.CreateToken()
 	if err != nil {
