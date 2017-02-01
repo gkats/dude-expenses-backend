@@ -9,13 +9,16 @@ import (
 func Configure(env *app.Env) {
 	db, err := sql.Open("postgres", "postgres://"+env.GetDBUrl()+"?sslmode=require")
 	if err != nil {
-		// TODO Logging here...
+		app.HandleFatal(err)
 	}
 	if err = db.Ping(); err != nil {
-		// TODO Logging here...
+		Close(db)
+		app.HandleFatal(err)
 	}
 
 	env.SetDB(db)
 }
 
-// TODO defer db.Close() in main... expose a Close() function for main to defer
+func Close(db *sql.DB) {
+	db.Close()
+}

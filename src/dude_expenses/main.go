@@ -29,6 +29,7 @@ func main() {
 	env := app.New(*authSecret, *dbUrl)
 
 	db.Configure(env)
+	defer db.Close(env.GetDB())
 	users.Configure(env)
 	expenses.Configure(env)
 
