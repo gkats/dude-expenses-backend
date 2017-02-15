@@ -9,6 +9,6 @@ type Token struct {
 }
 
 type AuthClaims struct {
-	UserId string `json:"user_id"`
+	UserId string `json:"userId"`
 	jwt.StandardClaims
 }

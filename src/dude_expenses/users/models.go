@@ -7,8 +7,8 @@ import (
 type User struct {
 	Id                int64  `json:"id,omitempty"`
 	Email             string `json:"email,omitempty"`
-	CreatedAt         string `json:"created_at,omitempty"`
-	UpdatedAt         string `json:"updated_at,omitempty"`
+	CreatedAt         string `json:"createdAt,omitempty"`
+	UpdatedAt         string `json:"updatedAt,omitempty"`
 	EncryptedPassword string `json:"-"`
 }
 

@@ -13,7 +13,7 @@ func (validation *ExpenseValidation) IsValid() bool {
 	validation.Errors = make(map[string][]string)
 
 	if validation.PriceCents <= 0 {
-		validation.Errors["price_cents"] = append(validation.Errors["price_cents"], "must be greater than 0")
+		validation.Errors["priceCents"] = append(validation.Errors["priceCents"], "must be greater than 0")
 	}
 
 	if len(validation.Date) == 0 {
@@ -25,7 +25,7 @@ func (validation *ExpenseValidation) IsValid() bool {
 	}
 
 	if validation.UserId == 0 {
-		validation.Errors["user_id"] = append(validation.Errors["user_id"], "can't be blank")
+		validation.Errors["userId"] = append(validation.Errors["userId"], "can't be blank")
 	}
 
 	return len(validation.Errors) == 0
