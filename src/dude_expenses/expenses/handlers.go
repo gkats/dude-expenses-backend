@@ -12,7 +12,6 @@ type indexHandler struct {
 
 func (h indexHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) app.Response {
 	var params FilterParams
-	w.Header().Set("Pragma", "no-cache")
 
 	queryParams := r.URL.Query()
 	params.From = queryParams.Get("from")
@@ -64,4 +63,21 @@ func (h createHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) app.Res
 
 func Create(env *app.Env) app.Handler {
 	return createHandler{env: env}
+}
+
+type tagsHandler struct {
+	env *app.Env
+}
+
+func (h tagsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) app.Response {
+	tags, err := NewRepository(h.env.GetDB()).GetTags()
+	if err != nil {
+		return app.InternalServerError()
+	}
+
+	return app.OK(tags)
+}
+
+func GetTags(env *app.Env) app.Handler {
+	return tagsHandler{env: env}
 }

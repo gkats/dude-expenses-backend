@@ -28,3 +28,7 @@ type FilterParams struct {
 func NewExpense(params ExpenseParams) Expense {
 	return Expense{ExpenseParams: params}
 }
+
+type Tags struct {
+	Tags []string `json:"tags"`
+}

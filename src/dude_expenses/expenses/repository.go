@@ -57,3 +57,20 @@ func (repository *Repository) GetExpenses(params FilterParams) (Expenses, error)
 	}
 	return expenses, nil
 }
+
+func (r *Repository) GetTags() (Tags, error) {
+	tags := Tags{Tags: make([]string, 0)}
+
+	rows, err := r.db.Query("SELECT DISTINCT tag FROM expenses")
+	defer rows.Close()
+	if err != nil {
+		return tags, err
+	}
+
+	var tag string
+	for rows.Next() {
+		rows.Scan(&tag)
+		tags.Tags = append(tags.Tags, tag)
+	}
+	return tags, nil
+}
