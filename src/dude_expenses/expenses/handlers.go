@@ -70,7 +70,7 @@ type tagsHandler struct {
 }
 
 func (h tagsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) app.Response {
-	tags, err := NewRepository(h.env.GetDB()).GetTags()
+	tags, err := NewRepository(h.env.GetDB()).GetTags(h.env.GetUserId())
 	if err != nil {
 		return app.InternalServerError()
 	}

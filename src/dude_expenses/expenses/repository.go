@@ -58,10 +58,10 @@ func (repository *Repository) GetExpenses(params FilterParams) (Expenses, error)
 	return expenses, nil
 }
 
-func (r *Repository) GetTags() (Tags, error) {
+func (r *Repository) GetTags(userId string) (Tags, error) {
 	tags := Tags{Tags: make([]string, 0)}
 
-	rows, err := r.db.Query("SELECT DISTINCT tag FROM expenses")
+	rows, err := r.db.Query("SELECT DISTINCT tag FROM expenses WHERE user_id = $1", userId)
 	defer rows.Close()
 	if err != nil {
 		return tags, err
