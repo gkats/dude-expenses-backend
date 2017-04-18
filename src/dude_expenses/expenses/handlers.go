@@ -100,6 +100,44 @@ func (h showHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) app.Respo
 	return app.OK(expense)
 }
 
-func GetExpense(env *app.Env) app.Handler {
+func Show(env *app.Env) app.Handler {
 	return showHandler{env: env}
+}
+
+type updateHandler struct {
+	env *app.Env
+}
+
+func (h updateHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) app.Response {
+	var expenseParams ExpenseParams
+
+	err := app.ParseRequestBody(r, &expenseParams)
+	defer r.Body.Close()
+	if err != nil {
+		return app.BadRequest()
+	}
+	expenseParams.UserId, err = strconv.ParseInt(h.env.GetUserId(), 10, 64)
+	if err != nil {
+		return app.BadRequest()
+	}
+
+	expenseValidation := NewExpenseValidation(expenseParams)
+	if !expenseValidation.IsValid() {
+		return app.UnprocessableEntity(expenseValidation.Errors)
+	}
+
+	repository := NewRepository(h.env.GetDB())
+	expense, err := repository.UpdateExpense(mux.Vars(r)["id"], expenseParams)
+	if err != nil {
+		return app.InternalServerError()
+	}
+	if expense == nil {
+		return app.NotFound()
+	}
+
+	return app.OK(expense)
+}
+
+func Update(env *app.Env) app.Handler {
+	return updateHandler{env: env}
 }

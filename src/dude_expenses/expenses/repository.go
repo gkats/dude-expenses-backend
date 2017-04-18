@@ -13,7 +13,7 @@ func NewRepository(db *sql.DB) *Repository {
 	return &Repository{db: db}
 }
 
-func (repository *Repository) CreateExpense(params ExpenseParams) (Expense, error) {
+func (r *Repository) CreateExpense(params ExpenseParams) (Expense, error) {
 	expense := NewExpense(params)
 
 	query := `
@@ -21,7 +21,7 @@ func (repository *Repository) CreateExpense(params ExpenseParams) (Expense, erro
 	VALUES($1, $2, $3, $4, $5)
 	RETURNING id, created_at, updated_at
 	`
-	err := repository.db.QueryRow(
+	err := r.db.QueryRow(
 		query,
 		expense.UserId, expense.PriceCents, expense.Date, expense.Tag, expense.Notes,
 	).Scan(&expense.Id, &expense.CreatedAt, &expense.UpdatedAt)
@@ -31,7 +31,7 @@ func (repository *Repository) CreateExpense(params ExpenseParams) (Expense, erro
 	return expense, nil
 }
 
-func (repository *Repository) GetExpenses(params FilterParams) (Expenses, error) {
+func (r *Repository) GetExpenses(params FilterParams) (Expenses, error) {
 	expenses := Expenses{Expenses: make([]Expense, 0)}
 	var err error
 	var rows *sql.Rows
@@ -41,7 +41,7 @@ func (repository *Repository) GetExpenses(params FilterParams) (Expenses, error)
 		params,
 	)
 	query, args := qb.Build()
-	rows, err = repository.db.Query(query, args...)
+	rows, err = r.db.Query(query, args...)
 	defer rows.Close()
 	if err != nil {
 		return expenses, err
@@ -92,4 +92,26 @@ func (r *Repository) GetExpense(id string) (*Expense, error) {
 		return nil, err
 	}
 	return expense, nil
+}
+
+func (r *Repository) UpdateExpense(id string, params ExpenseParams) (*Expense, error) {
+	expense := NewExpense(params)
+
+	query := `
+	UPDATE expenses
+	SET price_cents = $1, date = $2, tag = $3, notes = $4
+	WHERE id = $5 AND user_id = $6
+	RETURNING id
+	`
+	err := r.db.QueryRow(
+		query,
+		expense.PriceCents, expense.Date, expense.Tag, expense.Notes,
+		id, expense.UserId,
+	).Scan(&expense.Id)
+	if err == sql.ErrNoRows {
+		return nil, nil
+	} else if err != nil {
+		return nil, err
+	}
+	return &expense, nil
 }
