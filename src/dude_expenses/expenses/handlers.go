@@ -2,6 +2,7 @@ package expenses
 
 import (
 	"dude_expenses/app"
+	"github.com/gorilla/mux"
 	"net/http"
 	"strconv"
 )
@@ -80,4 +81,25 @@ func (h tagsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) app.Respo
 
 func GetTags(env *app.Env) app.Handler {
 	return tagsHandler{env: env}
+}
+
+type showHandler struct {
+	env *app.Env
+}
+
+func (h showHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) app.Response {
+	vars := mux.Vars(r)
+	expense, err := NewRepository(h.env.GetDB()).GetExpense(vars["id"])
+	if err != nil {
+		return app.InternalServerError()
+	}
+	if expense == nil {
+		return app.NotFound()
+	}
+
+	return app.OK(expense)
+}
+
+func GetExpense(env *app.Env) app.Handler {
+	return showHandler{env: env}
 }

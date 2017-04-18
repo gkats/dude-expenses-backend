@@ -74,3 +74,22 @@ func (r *Repository) GetTags(userId string) (Tags, error) {
 	}
 	return tags, nil
 }
+
+func (r *Repository) GetExpense(id string) (*Expense, error) {
+	expense := &Expense{}
+	query := `
+	SELECT id, price_cents, date, tag, notes, user_id, created_at, updated_at
+	FROM expenses
+	WHERE id = $1
+	`
+	err := r.db.QueryRow(query, id).Scan(
+		&expense.Id, &expense.PriceCents, &expense.Date, &expense.Tag, &expense.Notes,
+		&expense.UserId, &expense.CreatedAt, &expense.UpdatedAt,
+	)
+	if err == sql.ErrNoRows {
+		return nil, nil
+	} else if err != nil {
+		return nil, err
+	}
+	return expense, nil
+}
