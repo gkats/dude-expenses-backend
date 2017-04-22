@@ -115,3 +115,15 @@ func (r *Repository) UpdateExpense(id string, params ExpenseParams) (*Expense, e
 	}
 	return &expense, nil
 }
+
+func (r *Repository) DeleteExpense(id string, userId string) (int64, error) {
+	stmt, err := r.db.Prepare("DELETE FROM expenses WHERE id = $1 AND user_id = $2")
+	if err != nil {
+		return 0, err
+	}
+	res, err := stmt.Exec(id, userId)
+	if err != nil {
+		return 0, err
+	}
+	return res.RowsAffected()
+}

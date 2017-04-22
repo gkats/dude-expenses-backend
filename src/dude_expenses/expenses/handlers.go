@@ -141,3 +141,23 @@ func (h updateHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) app.Res
 func Update(env *app.Env) app.Handler {
 	return updateHandler{env: env}
 }
+
+type destroyHandler struct {
+	env *app.Env
+}
+
+func (h destroyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) app.Response {
+	repository := NewRepository(h.env.GetDB())
+	rowsCnt, err := repository.DeleteExpense(mux.Vars(r)["id"], h.env.GetUserId())
+	if err != nil {
+		return app.InternalServerError()
+	}
+	if rowsCnt == 0 {
+		return app.NotFound()
+	}
+	return app.OK(map[string]string{})
+}
+
+func Destroy(env *app.Env) app.Handler {
+	return destroyHandler{env: env}
+}
